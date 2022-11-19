@@ -1,13 +1,13 @@
-package io.robrichardson.inventorycount;
+package com.dandylyon.inventorynotifier;
 
 import net.runelite.client.RuneLite;
 import net.runelite.client.externalplugins.ExternalPluginManager;
 
-public class InventoryCountPluginTest
+public class InventoryNotifierPluginTest
 {
 	public static void main(String[] args) throws Exception
 	{
-		ExternalPluginManager.loadBuiltin(InventoryCountPlugin.class);
+		ExternalPluginManager.loadBuiltin(InventoryNotifierPlugin.class);
 		RuneLite.main(args);
 	}
 }

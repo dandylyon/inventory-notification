@@ -1,4 +1,4 @@
-package io.robrichardson.inventorycount;
+package com.dandylyon.inventorynotifier;
 
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
@@ -15,34 +15,27 @@ import net.runelite.client.ui.overlay.OverlayUtil;
 
 import javax.inject.Inject;
 import java.awt.*;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 @Slf4j
-public class InventoryCountOverlay extends Overlay {
+public class InventoryNotifierOverlay extends Overlay {
 
     private final Client client;
-    private final InventoryCountConfig config;
     private final ConfigManager configManager;
 
     private String _text;
 
     @Inject
-    public InventoryCountOverlay(Client client, InventoryCountPlugin plugin, InventoryCountConfig config, ConfigManager configManager) {
+    public InventoryNotifierOverlay(Client client, InventoryNotifierPlugin plugin, ConfigManager configManager) {
         super(plugin);
         setPosition(OverlayPosition.DYNAMIC);
         setLayer(OverlayLayer.ABOVE_WIDGETS);
         setPriority(OverlayPriority.HIGH);
         this.client = client;
-        this.config = config;
         this.configManager = configManager;
     }
 
     @Override
     public Dimension render(Graphics2D graphics) {
-        if (!config.renderOnInventory()) return null;
-
         Widget toDrawOn;
         if (client.isResized()) {
             toDrawOn = client.getWidget(WidgetInfo.RESIZABLE_VIEWPORT_INVENTORY_TAB);

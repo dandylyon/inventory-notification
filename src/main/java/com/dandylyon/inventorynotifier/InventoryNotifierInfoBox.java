@@ -1,4 +1,4 @@
-package io.robrichardson.inventorycount;
+package com.dandylyon.inventorynotifier;
 
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.ui.overlay.infobox.InfoBox;
@@ -6,11 +6,11 @@ import net.runelite.client.ui.overlay.infobox.InfoBox;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class InventoryCountInfoBox extends InfoBox
+public class InventoryNotifierInfoBox extends InfoBox
 {
     private String _text;
 
-    InventoryCountInfoBox(BufferedImage image, Plugin plugin)
+    InventoryNotifierInfoBox(BufferedImage image, Plugin plugin)
     {
         super(image, plugin);
         setTooltip("Number of open inventory spaces");

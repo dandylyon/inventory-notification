@@ -1,15 +1,13 @@
-package io.robrichardson.inventorycount;
+package com.dandylyon.inventorynotifier;
 
 import javax.inject.Inject;
 
-import com.google.inject.Provides;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
+import net.runelite.client.Notifier;
 import net.runelite.api.events.ItemContainerChanged;
-import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
-import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -20,9 +18,9 @@ import java.util.Arrays;
 
 @Slf4j
 @PluginDescriptor(
-		name = "Inventory Count"
+		name = "Inventory Notifier"
 )
-public class InventoryCountPlugin extends Plugin
+public class InventoryNotifierPlugin extends Plugin
 {
 	@Inject
 	private Client client;
@@ -31,92 +29,63 @@ public class InventoryCountPlugin extends Plugin
 	private InfoBoxManager infoBoxManager;
 
 	@Inject
-	private InventoryCountOverlay overlay;
+	private InventoryNotifierOverlay overlay;
 
 	@Inject
 	private OverlayManager overlayManager;
 
 	@Inject
-	private InventoryCountConfig config;
+	private Notifier notifier;
 
 	private static final BufferedImage INVENTORY_IMAGE;
+	private static final BufferedImage INVENTORY_FULL_IMAGE;
+	private BufferedImage CURRENT_IMAGE = INVENTORY_IMAGE;
 
 	private static final int INVENTORY_SIZE = 28;
 
 	@Getter
-	private InventoryCountInfoBox inventoryCountInfoBox;
+	private InventoryNotifierInfoBox inventoryNotifierInfoBox;
 
 	static
 	{
-		INVENTORY_IMAGE = ImageUtil.loadImageResource(InventoryCountPlugin.class, "inventory_icon.png");
+		INVENTORY_IMAGE = ImageUtil.loadImageResource(InventoryNotifierPlugin.class, "inventory_icon.png");
+		INVENTORY_FULL_IMAGE = ImageUtil.loadImageResource(InventoryNotifierPlugin.class, "inventory_full_icon.png");
 	}
 
 	@Override
 	protected void startUp() throws Exception
 	{
-		if (config.renderOnInventory())  {
-			overlayManager.add(overlay);
-			updateOverlays();
-		} else {
 			addInfoBox();
-		}
 	}
 
 	@Override
 	protected void shutDown() throws Exception
 	{
-		if (config.renderOnInventory())  {
-			overlayManager.remove(overlay);
-		} else {
 			removeInfoBox();
-		}
-	}
-
-	@Subscribe
-	public void onConfigChanged(ConfigChanged event) {
-		if (!InventoryCountConfig.GROUP.equals(event.getGroup())) return;
-
-		if ("renderOnInventory".equals(event.getKey())) {
-			if (config.renderOnInventory()) {
-				removeInfoBox();
-				overlayManager.add(overlay);
-				updateOverlays();
-			} else {
-				overlayManager.remove(overlay);
-				addInfoBox();
-			}
-		}
-	}
-
-	@Provides
-	InventoryCountConfig provideConfig(ConfigManager configManager)
-	{
-		return configManager.getConfig(InventoryCountConfig.class);
 	}
 
 	private void addInfoBox()
 	{
-		inventoryCountInfoBox = new InventoryCountInfoBox(INVENTORY_IMAGE, this);
+		inventoryNotifierInfoBox = new InventoryNotifierInfoBox(CURRENT_IMAGE, this);
 		updateOverlays();
-		infoBoxManager.addInfoBox(inventoryCountInfoBox);
+		infoBoxManager.addInfoBox(inventoryNotifierInfoBox);
 	}
 
 	private void removeInfoBox()
 	{
-		infoBoxManager.removeInfoBox(inventoryCountInfoBox);
-		inventoryCountInfoBox = null;
+		infoBoxManager.removeInfoBox(inventoryNotifierInfoBox);
+		inventoryNotifierInfoBox = null;
 	}
 
-	private void updateOverlays()
-	{
+	private void updateOverlays() {
 		String text = String.valueOf(openInventorySpaces());
-		if(config.renderOnInventory())
-		{
-			overlay.setText(text);
-		}
-		else
-		{
-			inventoryCountInfoBox.setText(text);
+		if (openInventorySpaces() == 0) {
+			CURRENT_IMAGE = INVENTORY_FULL_IMAGE;
+			inventoryNotifierInfoBox.setText("");
+			notifier.notify("Your inventory is full.");
+		} else {
+			CURRENT_IMAGE = INVENTORY_IMAGE;
+			inventoryNotifierInfoBox.setText(text);
 		}
 	}
 
@@ -134,6 +103,8 @@ public class InventoryCountPlugin extends Plugin
 		if (event.getContainerId() == InventoryID.INVENTORY.getId())
 		{
 			updateOverlays();
+			removeInfoBox();
+			addInfoBox();
 		}
 	}
 }

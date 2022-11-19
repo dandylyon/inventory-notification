@@ -23,7 +23,7 @@ dependencies {
 	testImplementation group: 'net.runelite', name:'jshell', version: runeLiteVersion
 }
 
-group = 'io.robrichardson.inventorycount'
+group = 'com.dandlyon.inventorynotifier'
 version = '1.0.1'
 sourceCompatibility = '1.8'
 
